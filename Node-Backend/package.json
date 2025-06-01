@@ -1,0 +1,18 @@
+{
+  "name": "intelliconsultant",
+  "version": "1.0.0",
+  "description": "AI Driven Pool Consultant application",
+  "license": "ISC",
+  "author": "Rai Pritesh, Daksh Yadav , Anand Salokiya, Vidushi Upadhyay",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "mongoose": "^8.15.1",
+    "nodemon": "^3.1.10"
+  }
+}
