@@ -103,8 +103,8 @@ cython_debug/
 .idea/
 
 # Models and data folders you may want to ignore (customize as needed)
-models/
-data/
+# models/
+# data/
 
 # MacOS system files
 .DS_Store
