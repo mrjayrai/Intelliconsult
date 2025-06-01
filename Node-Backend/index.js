@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('./config/db');
+const UserSchema = require('./Models/User');
 
 dotenv.config();
 
