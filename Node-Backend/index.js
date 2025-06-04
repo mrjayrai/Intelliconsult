@@ -3,7 +3,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('./config/db');
 const UserSchema = require('./models/User');
-const userRoutes = require('./Routes/UserRoutes');
+const userRoutes = require('./routes/UserRoutes');
+const path = require('path');
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/users',userRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.get('/', (req, res) => {

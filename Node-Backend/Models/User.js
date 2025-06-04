@@ -1,77 +1,56 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    email:{
-        type: String,
-        required: true,
-        unique: true,
+  name: {
+    type: String,
+    required: true,
+  },
+  mobileNumber: {
+    type: String,
+    required: true,
+  },
+  DOB: {
+    type: Date,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  role: {
+    type: String,
+    enum: ['consultant', 'manager'],
+    required: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  onBench: {
+    type: Boolean,
+    required: function () {
+      return this.role === 'consultant';
     },
-    password:{
-        type: String,
-        required: true,
-    },
-    Domain:{
-        type: String,
-        required: true,
-    },
-    role: {
-        type: String,
-        enum: ['admin', 'user'],
-        default: 'user',
-    },
-    skills: [
-        {
-            name: {
-                type: String,
-                required: true,
-            },
-            experienceInYears: {
-                type: Number,
-                required: true,
-                min: 0,
-            }
-        }
-    ],
-    totalworkingDays: {
-        type: Number,
-        default: 0,
-    },
-    attendedDays: {
-        type: Number,
-        default: 0,
-    },
-    city: {
-        type: String,
-        default: '',
-    },
-    state: {
-        type: String,
-        default: '',
-    },
-    country: {
-        type: String,
-        default: '',
-    },
-    profilePicture: {
-        type: String,
-        default: '',
-    },
-    lastLogin: {
-        type: Date,
-        default: Date.now,
-    },
-    isActive: {
-        type: Boolean,
-        default: true,
-    },
-    yearsOfExperience: {
-        type: Number,
-        default: 0,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
+  },
+  imageUrl: {
+    type: String,
+  },
+  DOJ: {
+    type: Date,
+    required: true,
+  },
+}, {
+  timestamps: true,
 });
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
+module.exports = User;

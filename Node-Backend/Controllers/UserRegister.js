@@ -1,21 +1,19 @@
-const User = require('../models/User'); 
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 
 const registerUser = async (req, res) => {
     try {
         const {
-            email,
-            password,
-            Domain,
-            role,
-            skills,
-            totalworkingDays,
-            attendedDays,
+            name,
+            mobileNumber,
+            DOB,
             city,
-            state,
-            country,
-            profilePicture,
-            yearsOfExperience
+            role,
+            password,
+            email,
+            onBench,
+            DOJ
         } = req.body;
 
         // Check if user already exists
@@ -24,23 +22,29 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User with this email already exists.' });
         }
 
-        
+        // Validate that onBench is present if role is 'consultant'
+        if (role === 'consultant' && typeof onBench === 'undefined') {
+            return res.status(400).json({ message: 'onBench is required for consultants.' });
+        }
+
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-     
+        // Construct image path if file was uploaded
+        const imageUrl = req.file ? path.join('uploads', req.file.filename) : null;
+
         const newUser = new User({
-            email,
-            password: hashedPassword,
-            Domain,
-            role,
-            skills,
-            totalworkingDays,
-            attendedDays,
+            name,
+            mobileNumber,
+            DOB,
             city,
-            state,
-            country,
-            profilePicture,
-            yearsOfExperience
+            role,
+            isActive: true,
+            password: hashedPassword,
+            email,
+            onBench: role === 'consultant' ? onBench : undefined,
+            imageUrl,
+            DOJ
         });
 
         await newUser.save();
