@@ -3,6 +3,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('./config/db');
 const UserSchema = require('./models/User');
+const AttendanceSchema = require('./models/Attendance');
+const TrainingSchema = require('./models/Training');
+const OpportunitySchema = require('./models/Opportunity');
+const UserSkillSchema = require('./models/UserSkillSet');
 const userRoutes = require('./routes/UserRoutes');
 const path = require('path');
 
