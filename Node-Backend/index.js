@@ -8,6 +8,7 @@ const TrainingSchema = require('./models/Training');
 const OpportunitySchema = require('./models/Opportunity');
 const UserSkillSchema = require('./models/UserSkillSet');
 const userRoutes = require('./routes/UserRoutes');
+const skillRoutes = require('./routes/SkillsRoutes');
 const path = require('path');
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/users',userRoutes);
+app.use('/api/skills', skillRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
