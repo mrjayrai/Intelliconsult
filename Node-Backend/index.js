@@ -10,7 +10,7 @@ const UserSkillSchema = require('./models/UserSkillSet');
 const userRoutes = require('./routes/UserRoutes');
 const skillRoutes = require('./routes/SkillsRoutes');
 const AttendanceRoutes = require('./routes/AttendanceRoutes');
-// const TrainingRoutes = require('./routes/TrainingRoutes');
+const TrainingRoutes = require('./routes/TrainingRoutes');
 const OpportunityRoutes = require('./routes/OpportunityRoutes');
 const path = require('path');
 
@@ -26,6 +26,7 @@ app.use('/api/users',userRoutes);
 app.use('/api/skills', skillRoutes);
 app.use('/api/attendance', AttendanceRoutes);
 app.use('/api/opportunities', OpportunityRoutes);
+app.use('/api/trainings', TrainingRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
