@@ -1,4 +1,4 @@
-const UserSkillSet = require('../models/UserSkillSet');
+const UserSkillSet = require('../Models/UserSkillSet');
 
 const addUserSkillSet = async (req, res) => {
     try {

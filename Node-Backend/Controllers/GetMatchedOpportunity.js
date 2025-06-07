@@ -1,5 +1,5 @@
-const Opportunity = require('../models/Opportunity');
-const UserSkillSet = require('../models/UserSkillSet');
+const Opportunity = require('../Models/Opportunity');
+const UserSkillSet = require('../Models/UserSkillSet');
 const axios = require('axios');
 const dotenv = require('dotenv');
 

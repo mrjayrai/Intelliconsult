@@ -1,5 +1,5 @@
-const Training = require('../models/Training');
-const User = require('../models/User');
+const Training = require('../Models/Training');
+const User = require('../Models/User');
 
 const createTraining = async (req, res) => {
   try {
