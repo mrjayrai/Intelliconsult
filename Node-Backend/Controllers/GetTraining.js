@@ -1,0 +1,1 @@
+const StudentTrainingCompletion = require('../models/TrainingCompleted');
