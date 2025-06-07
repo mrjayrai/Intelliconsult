@@ -1,11 +1,11 @@
-const Opportunity = require('../Models/Opportunity');
-const UserSkillSet = require('../Models/UserSkillSet');
+const Opportunity = require('../models/Opportunity');
+const UserSkillSet = require('../models/UserSkillSet');
 const axios = require('axios');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-const getMatchedOpportunity = async (req, res) => {
+const getMatchedOpportunityf = async (req, res) => {
     try {
         // Fetch opportunities (only required fields)
         const opportunitiesData = await Opportunity.find({}, {
@@ -54,4 +54,4 @@ const getMatchedOpportunity = async (req, res) => {
     }
 };
 
-module.exports = getMatchedOpportunity;
+module.exports = getMatchedOpportunityf;
