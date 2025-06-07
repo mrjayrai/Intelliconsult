@@ -6,4 +6,8 @@ seaborn
 jupyter
 joblib
 flask
-nltk
+transformers
+spacy
+pdfplumber
+python-docx
+keybert
