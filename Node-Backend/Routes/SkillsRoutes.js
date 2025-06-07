@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { addUserSkillSet } = require('../controllers/UserSkillSetFeed');
+const { addUserSkillSet } = require('../Controllers/UserSkillSetFeed');
 
 router.post('/add-skill-set', addUserSkillSet);
 

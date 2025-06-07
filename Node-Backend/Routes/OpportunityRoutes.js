@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const {addOpportunity} = require('../controllers/Addopportunity');
+const {addOpportunity} = require('../Controllers/Addopportunity');
+const { getMatchedOpportunity } = require('../Controllers/GetMatchedOpportunity');
 
 router.post('/add-opportunity', addOpportunity);
-router.post('/get-matched-opportunity', require('../controllers/GetMatchedOpportunity'));
+router.post('/get-matched-opportunity', getMatchedOpportunity);
 
 module.exports = router;
