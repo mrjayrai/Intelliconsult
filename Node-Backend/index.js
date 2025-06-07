@@ -8,6 +8,7 @@ const TrainingSchema = require('./models/Training');
 const OpportunitySchema = require('./models/Opportunity');
 const UserSkillSchema = require('./models/UserSkillSet');
 const studentTrainingCompletionSchema = require('./models/TrainingCompleted');
+const TrainingAssignment = require('./models/AssignedTraining');
 const userRoutes = require('./routes/UserRoutes');
 const skillRoutes = require('./routes/SkillsRoutes');
 const AttendanceRoutes = require('./routes/AttendanceRoutes');
