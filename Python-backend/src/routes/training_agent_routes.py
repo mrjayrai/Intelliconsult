@@ -8,5 +8,5 @@ def handle_training_route():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
-    result = handle_training()
-    return jsonify(result), 200
+    # result = handle_training()
+    return handle_training()
