@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const mongoose = require('./config/db');
+const connectDB = require('./config/db');
 const UserSchema = require('./models/User');
 const AttendanceSchema = require('./models/Attendance');
 const TrainingSchema = require('./models/Training');
@@ -14,6 +14,7 @@ const TrainingRoutes = require('./routes/TrainingRoutes');
 const OpportunityRoutes = require('./routes/OpportunityRoutes');
 const path = require('path');
 
+connectDB();
 dotenv.config();
 
 const app = express();
