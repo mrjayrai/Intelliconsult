@@ -140,8 +140,9 @@ This project is for educational and demonstration purposes.
 
 - Rai Pritesh
 - Daksh Yadav
-- Anand Salokiya
 - Vidushi Upadhyay
+- Anand Salokiya
+
 
 _Node.js backend author field:_
 ```json
