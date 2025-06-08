@@ -138,8 +138,15 @@ This project is for educational and demonstration purposes.
 
 ## 👨‍💻 Authors
 
-- Node.js backend: [Controllers](Node-Backend/Controllers/)
-- Python backend: [src/controllers](Python-backend/src/controllers/)
+- Rai Pritesh
+- Daksh Yadav
+- Anand Salokiya
+- Vidushi Upadhyay
+
+_Node.js backend author field:_
+```json
+"author": "Rai Pritesh, Daksh Yadav , Anand Salokiya, Vidushi Upadhyay",
+```
 
 ---
 
