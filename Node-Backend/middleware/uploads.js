@@ -13,15 +13,16 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter to allow only image files
+// Updated file filter to allow images, CSV, and resumes (PDF, DOC, DOCX)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|csv/;
+  const allowedTypes = /jpeg|jpg|png|csv|pdf|doc|docx/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const mimetype = allowedTypes.test(file.mimetype.toLowerCase());
+
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Only JPEG and PNG images are allowed'));
+    cb(new Error('Only JPEG, PNG, CSV, PDF, DOC, and DOCX files are allowed'));
   }
 };
 
