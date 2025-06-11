@@ -1,0 +1,48 @@
+Login Page
+Registration Page
+
+
+Role based Dashboard
+
+
+
+Consultant dashboard-------------------------------------------------------------------------
+
+
+---------Visuals-------------
+
+1. Training Hours
+2. Training Modules
+3. Opportunities Applied
+4. Month wise training journey
+5. Recent Trainings
+
+------------Pages-----------------
+
+1. Skills Page
+2. Training Page
+3. Profile Page
+4. Opportunity Page
+5. Attendance Page
+------------------------------------------------------------------------------------------------
+
+Manager dashboard-------------------------------------------------------------------------
+
+
+---------Visuals-------------
+
+1. Total Training Conducted
+2. Consulatnt completed training
+3. Opportunities reponses
+4. Recent/Ongoing Opportunity
+5. Recent/Ongoing Trainings
+
+------------Pages-----------------
+ 
+1. Training Page ---- Flask
+2. Consultant Profile Page
+3. Opportunity Page ---- Flask
+4. Attendance Page ---- Flask
+
+
+------------------------------------------------------------------------------------------------
