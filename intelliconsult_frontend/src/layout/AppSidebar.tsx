@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState,useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+
 import {
   // BoxCubeIcon,
   CalenderIcon,
@@ -23,6 +24,8 @@ type NavItem = {
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
+
+
 
 const navItems: NavItem[] = [
   {
@@ -105,6 +108,13 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
+  const data = localStorage.getItem('authData');
+
+  if(!data){
+   redirect('/signin');
+  
+  }
+ 
   const renderMenuItems = (
     navItems: NavItem[],
     menuType: "main" | "others"
