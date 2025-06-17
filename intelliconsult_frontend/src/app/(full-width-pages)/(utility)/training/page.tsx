@@ -5,6 +5,6 @@ export const metadata: Metadata = {
   description: "This is intelliConsult Training Page",
 };
 
-export default function Skill() {
+export default function Training() {
   return <TrainingPage />;
 }

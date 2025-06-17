@@ -1,45 +1,36 @@
-// "use client";
-// import React from "react";
-
-// export default function TrainingPage() {
-  
-  
-  
-//   return (
-//     <>
-//     {/* Skills Page to be designed here */}
-//     </>
-//   );
-// }
-
-// app/training.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
+import api from '@/apiLink';
+
+interface TrainingData {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  trainerName: string;
+  skillsToBeAcquired: string[];
+}
 
 interface AssignedTraining {
   _id: string;
   assignedDate: string;
-  trainingId: {
-    _id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    trainerName: string;
-    skillsToBeAcquired: string[];
-  };
+  trainingId: TrainingData;
 }
 
 interface CompletedTraining {
-  trainingId: string;
+  _id: string;
+  trainingId: TrainingData;
   completedDate: string;
   score: number;
   certificateUrl: string;
   feedback: string;
-  _id: string;
 }
+
+const CARDS_PER_PAGE = 3;
 
 export default function TrainingPage() {
   const { authData } = useAuth();
@@ -49,13 +40,15 @@ export default function TrainingPage() {
   const [completedTrainings, setCompletedTrainings] = useState<CompletedTraining[]>([]);
   const [loadingAssigned, setLoadingAssigned] = useState(true);
   const [loadingCompleted, setLoadingCompleted] = useState(true);
+  const [assignedPage, setAssignedPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
 
   useEffect(() => {
     if (!userId) return;
 
     const fetchAssignedTrainings = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/trainings/assigned', {
+        const response = await fetch(api + 'trainings/assigned', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId }),
@@ -71,7 +64,11 @@ export default function TrainingPage() {
 
     const fetchCompletedTrainings = async () => {
       try {
-        const response = await fetch(`/api/completed-training?userId=${userId}`);
+        const response = await fetch(api + 'trainings/get-completed-training', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
         const result = await response.json();
         setCompletedTrainings(result.data.trainingsCompleted);
       } catch (error) {
@@ -85,6 +82,36 @@ export default function TrainingPage() {
     fetchCompletedTrainings();
   }, [userId]);
 
+  const paginate = <T,>(data: T[], page: number) =>
+    data.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE);
+
+  const renderPagination = (
+    total: number,
+    currentPage: number,
+    setPage: (page: number) => void
+  ) => {
+    const totalPages = Math.ceil(total / CARDS_PER_PAGE);
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex justify-center mt-6 space-x-2">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setPage(i + 1)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              currentPage === i + 1
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   if (!userId) {
     return (
       <div className="p-6 text-center text-gray-500">
@@ -94,63 +121,115 @@ export default function TrainingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-6 transition-colors duration-300">
-      <h1 className="text-3xl font-bold mb-8 text-center">📚 My Trainings</h1>
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-6">
+      <h1 className="text-3xl font-bold mb-10 text-center">My Trainings</h1>
 
-      {/* Assigned Trainings Box */}
-      <div className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 mb-6 max-h-[400px] overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4 text-blue-700 dark:text-blue-400">📌 Assigned Trainings</h2>
+      {/* Assigned Trainings Section */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-semibold mb-6 text-blue-700 dark:text-blue-400">
+          Assigned Trainings
+        </h2>
         {loadingAssigned ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
         ) : assignedTrainings.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">No assigned trainings found.</p>
         ) : (
-          <div className="space-y-4">
-            {assignedTrainings.map((training) => (
-              <div key={training._id} className="bg-white dark:bg-gray-700 p-3 rounded shadow">
-                <p className="font-medium">{training.trainingId.name}</p>
-                <p className="text-sm">Trainer: {training.trainingId.trainerName}</p>
-                <p className="text-sm">
-                  Duration: {new Date(training.trainingId.startDate).toLocaleDateString()} -{' '}
-                  {new Date(training.trainingId.endDate).toLocaleDateString()}
-                </p>
-                <p className="text-sm">Skills: {training.trainingId.skillsToBeAcquired.join(', ')}</p>
-                <p className="text-xs italic mt-1 text-gray-500 dark:text-gray-400">
-                  Assigned on: {new Date(training.assignedDate).toDateString()}
-                </p>
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginate(assignedTrainings, assignedPage).map((training) => (
+                <div
+                  key={training._id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg overflow-hidden"
+                >
+                  <Image
+                    width={200}
+                    height={40}
+                    src="/images/logo/int_logo.png"
+                    alt="Training Banner"
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="p-5 space-y-2">
+                    <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300">
+                      {training.trainingId.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Trainer: <span className="font-medium">{training.trainingId.trainerName}</span>
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Duration: {new Date(training.trainingId.startDate).toLocaleDateString()} -{' '}
+                      {new Date(training.trainingId.endDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Skills: <span className="italic">{training.trainingId.skillsToBeAcquired.join(', ')}</span>
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Assigned on: {new Date(training.assignedDate).toDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {renderPagination(assignedTrainings.length, assignedPage, setAssignedPage)}
+          </>
         )}
-      </div>
+      </section>
 
-      {/* Completed Trainings Box */}
-      <div className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 max-h-[500px] overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4 text-green-700 dark:text-green-400">✅ Completed Trainings</h2>
+      {/* Completed Trainings Section */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-6 text-green-700 dark:text-green-400">
+          Completed Trainings
+        </h2>
         {loadingCompleted ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
         ) : completedTrainings.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">You haven’t completed any trainings yet.</p>
         ) : (
-          <div className="space-y-4">
-            {completedTrainings.map((training) => (
-              <div key={training._id} className="bg-white dark:bg-gray-700 p-3 rounded shadow">
-                <p className="font-medium text-gray-800 dark:text-gray-100">Training ID: {training.trainingId}</p>
-                <p className="text-xs">Completed on: {new Date(training.completedDate).toDateString()}</p>
-                <p className="text-sm">Score: {training.score}%</p>
-                <p className="text-xs italic mt-1">“{training.feedback}”</p>
-                <Link
-                  href={training.certificateUrl}
-                  target="_blank"
-                  className="block mt-2 text-blue-600 dark:text-blue-400 hover:underline text-sm"
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginate(completedTrainings, completedPage).map((training) => (
+                <div
+                  key={training._id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg overflow-hidden"
                 >
-                  🎓 View Certificate
-                </Link>
-              </div>
-            ))}
-          </div>
+                  <Image
+                    width={200}
+                    height={40}
+                    src="/images/logo/int_logo.png"
+                    alt="Certificate Banner"
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="p-5 space-y-2">
+                    <h3 className="text-lg font-bold text-green-800 dark:text-green-300">
+                      {training.trainingId.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Trainer: <span className="font-medium">{training.trainingId.trainerName}</span>
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Duration: {new Date(training.trainingId.startDate).toLocaleDateString()} -{' '}
+                      {new Date(training.trainingId.endDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Score: <span className="font-semibold">{training.score}%</span>
+                    </p>
+                    <p className="text-sm italic text-gray-500 dark:text-gray-300">
+                      {training.feedback}
+                    </p>
+                    <Link
+                      href={training.certificateUrl}
+                      target="_blank"
+                      className="block mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      View Certificate
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {renderPagination(completedTrainings.length, completedPage, setCompletedPage)}
+          </>
         )}
-      </div>
+      </section>
     </div>
   );
 }
