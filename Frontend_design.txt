@@ -19,10 +19,10 @@ Consultant dashboard------------------------------------------------------------
 
 ------------Pages-----------------
 
-1. Skills Page
-2. Training Page
-3. Profile Page
-4. Opportunity Page
+1. Skills Page || Get Done || 
+2. Training Page || Get Done || 
+3. Profile Page || Get Done ||
+4. Opportunity Page || Get Done ||
 5. Attendance Page
 ------------------------------------------------------------------------------------------------
 
