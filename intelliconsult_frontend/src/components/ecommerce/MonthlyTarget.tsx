@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { ApexOptions } from "apexcharts";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/apiLink";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { MoreDotIcon } from "@/icons";
+// import { Dropdown } from "../ui/dropdown/Dropdown";
+// import { DropdownItem } from "../ui/dropdown/DropdownItem";
+// import { MoreDotIcon } from "@/icons";
 
 // Dynamically import the ApexCharts component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -18,7 +18,7 @@ export default function MonthlyTarget() {
   const [monthlyHours, setMonthlyHours] = useState<number[]>([]);
   const [currentMonthPercent, setCurrentMonthPercent] = useState(0);
   const [todayHours, setTodayHours] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
 
   const totalHours = monthlyHours.reduce((sum, hr) => sum + hr, 0);
 
@@ -105,7 +105,7 @@ export default function MonthlyTarget() {
               Target you’ve set for each month
             </p>
           </div>
-          <div className="relative inline-block">
+          {/* <div className="relative inline-block">
             <button onClick={() => setIsOpen(!isOpen)}>
               <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
             </button>
@@ -113,7 +113,7 @@ export default function MonthlyTarget() {
               <DropdownItem onItemClick={() => setIsOpen(false)}>View More</DropdownItem>
               <DropdownItem onItemClick={() => setIsOpen(false)}>Delete</DropdownItem>
             </Dropdown>
-          </div>
+          </div> */}
         </div>
 
         {/* Radial Chart */}
