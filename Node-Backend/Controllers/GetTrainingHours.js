@@ -5,7 +5,7 @@ const TrainingAssignment = require('../models/AssignedTraining'); // your traini
 const getTotalTrainingHoursForUser = async (req, res) => {
   try {
     const { userId } = req.body;
-    const hoursPerDay = 3;
+    const hoursPerDay = 9;
 
     // 1. Fetch assigned trainings for user
     const assignment = await TrainingAssignment.findOne({ userId });
