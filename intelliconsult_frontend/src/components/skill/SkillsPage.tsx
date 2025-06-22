@@ -5,6 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { PlusIcon, XIcon } from 'lucide-react';
 import api from '@/apiLink';
 import { useAuth } from '@/context/AuthContext';
+import DropzoneComponent from '../form/form-elements/ResumeDropZone';
 
 type Skill = {
   _id?: string;
@@ -18,7 +19,6 @@ export default function SkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [newSkill, setNewSkill] = useState({ name: '', yearsOfExperience: 1 });
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -51,16 +51,6 @@ export default function SkillsPage() {
   const filtered = skills.filter((skill) =>
     skill.name.toLowerCase().includes(query.toLowerCase())
   );
-
-  const addSkill = () => {
-    if (newSkill.name.trim() === '') return;
-    setSkills([
-      ...skills,
-      { ...newSkill, certification: false, _id: Date.now().toString() },
-    ]);
-    setNewSkill({ name: '', yearsOfExperience: 1 });
-    setIsOpen(false);
-  };
 
   return (
     <div className="p-6 min-h-screen bg-white dark:bg-gray-950 transition-colors">
@@ -114,54 +104,22 @@ export default function SkillsPage() {
         ))}
       </div>
 
-      {/* Dialog to add new skill (local only) */}
+      {/* Dialog with Dropzone to upload resume */}
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed z-10 inset-0 overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen px-4">
           <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="relative bg-white dark:bg-zinc-900 rounded-xl max-w-sm w-full p-6 z-20 border border-gray-200 dark:border-zinc-800">
+          <div className="relative bg-white dark:bg-zinc-900 rounded-xl w-full max-w-xl p-6 z-20 border border-gray-200 dark:border-zinc-800">
             <div className="flex justify-between items-center mb-4">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-white">
-                Add New Skill
+                Upload Resume (PDF or DOCX)
               </Dialog.Title>
               <button onClick={() => setIsOpen(false)}>
                 <XIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
 
-            <input
-              type="text"
-              placeholder="Skill Name"
-              className="w-full mb-3 p-2 border rounded-md
-                bg-white dark:bg-zinc-800
-                border-gray-300 dark:border-zinc-700
-                text-zinc-900 dark:text-white
-                placeholder-gray-500 dark:placeholder-gray-400
-                focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              value={newSkill.name}
-              onChange={(e) =>
-                setNewSkill({ ...newSkill, name: e.target.value })
-              }
-            />
-            <input
-              type="number"
-              placeholder="Years of Experience"
-              className="w-full mb-4 p-2 border rounded-md
-                bg-white dark:bg-zinc-800
-                border-gray-300 dark:border-zinc-700
-                text-zinc-900 dark:text-white
-                placeholder-gray-500 dark:placeholder-gray-400
-                focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              value={newSkill.yearsOfExperience}
-              onChange={(e) =>
-                setNewSkill({ ...newSkill, yearsOfExperience: Number(e.target.value) })
-              }
-            />
-            <button
-              onClick={addSkill}
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-            >
-              Add Skill
-            </button>
+            {/* Dropzone component here */}
+            <DropzoneComponent />
           </div>
         </div>
       </Dialog>
