@@ -40,7 +40,7 @@ const consultantNavItems: NavItem[] = [
       { name: "Skills", path: "/skill" },
       { name: "Training", path: "/training" },
       { name: "Opportunity", path: "/opportunity" },
-      { name: "Attendance", path: "/attendance" },
+      // { name: "Attendance", path: "/attendance" },
     ],
   },
   {

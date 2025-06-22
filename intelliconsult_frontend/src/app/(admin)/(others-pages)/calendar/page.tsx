@@ -1,12 +1,12 @@
-import Calendar from "@/components/calendar/Calendar";
+import Calendar from "@/components/calendar/ConsultantCalendar";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Next.js Calender | TailAdmin - Next.js Dashboard Template",
+  title: "Intelliconsult",
   description:
-    "This is Next.js Calender page for TailAdmin  Tailwind CSS Admin Dashboard Template",
+    "Consultant Calendar Page for checking the Attendance",
   // other metadata
 };
 export default function page() {
