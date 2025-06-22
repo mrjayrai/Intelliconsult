@@ -52,10 +52,33 @@ const addResume = async (req, res) => {
 
     await newResume.save();
 
+    // Fetch existing skills for merging
+    const existingSkillSet = await UserSkillSet.findOne({ userId });
+
+    let mergedSkills;
+
+    if (existingSkillSet) {
+      const existingSkillsMap = new Map(
+        existingSkillSet.skills.map(skill => [skill.name.toLowerCase(), skill])
+      );
+
+      structuredSkills.forEach(newSkill => {
+        const skillName = newSkill.name.toLowerCase();
+        if (!existingSkillsMap.has(skillName)) {
+          existingSkillsMap.set(skillName, newSkill);
+        }
+        // You can add merging logic here if needed (e.g., update endorsements)
+      });
+
+      mergedSkills = Array.from(existingSkillsMap.values());
+    } else {
+      mergedSkills = structuredSkills;
+    }
+
     // Update or insert the detailed skills in UserSkillSet collection
     await UserSkillSet.findOneAndUpdate(
       { userId },
-      { $set: { skills: structuredSkills } },
+      { $set: { skills: mergedSkills } },
       { upsert: true, new: true }
     );
 
