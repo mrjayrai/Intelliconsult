@@ -100,7 +100,7 @@ export default function SkillsPage() {
               transition"
           >
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-              {skill.name}
+              {skill.name.toUpperCase()}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Experience: {skill.yearsOfExperience} yrs
