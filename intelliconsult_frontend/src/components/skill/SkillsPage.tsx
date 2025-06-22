@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
-import { PlusIcon, XIcon } from 'lucide-react';
+import {
+  PlusIcon,
+  XIcon,
+  PencilIcon,
+  CheckIcon,
+  Undo2Icon,
+} from 'lucide-react';
 import api from '@/apiLink';
 import { useAuth } from '@/context/AuthContext';
 import DropzoneComponent from '../form/form-elements/ResumeDropZone';
@@ -11,7 +17,8 @@ type Skill = {
   _id?: string;
   name: string;
   yearsOfExperience: number;
-  certification?: boolean;
+  certification?: boolean | string;
+  endorsements?: number;
 };
 
 export default function SkillsPage() {
@@ -19,20 +26,19 @@ export default function SkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [editingSkills, setEditingSkills] = useState<{ [key: string]: Skill }>({});
+  const [hasEdits, setHasEdits] = useState(false);
 
   useEffect(() => {
     const fetchSkills = async () => {
       try {
         const res = await fetch(api + 'skills/getskills', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: authData?.user._id }),
         });
 
         if (!res.ok) throw new Error('Failed to fetch skills');
-
         const data = await res.json();
 
         const sorted = (data?.data?.skills || []).sort(
@@ -47,6 +53,78 @@ export default function SkillsPage() {
 
     if (authData?.user._id) fetchSkills();
   }, [authData?.user._id]);
+
+  const getSkillKey = (skill: Skill) => skill._id || skill.name.toLowerCase();
+
+  const handleEdit = (skill: Skill) => {
+    const key = getSkillKey(skill);
+    setEditingSkills((prev) => ({
+      ...prev,
+      [key]: { ...skill },
+    }));
+    setHasEdits(true);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = (key: string, field: keyof Skill, value: any) => {
+    setEditingSkills((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [field]:
+          field === 'yearsOfExperience'
+            ? parseInt(value)
+            : field === 'certification'
+            ? Boolean(value)
+            : value,
+      },
+    }));
+  };
+
+  const handleCancelChanges = () => {
+    setEditingSkills({});
+    setHasEdits(false);
+  };
+
+  const syncSkillsWithEndorsement = async (userId: string, skills: Skill[]) => {
+    const normalized = skills.map((skill) => ({
+      name: skill.name,
+      yearsOfExperience: skill.yearsOfExperience,
+      certification: Boolean(skill.certification),
+      endorsements: skill.endorsements ?? 0,
+    }));
+
+    const response = await fetch(api + 'skills/add-skill-set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, skills: normalized, projects: [] }),
+    });
+
+    if (!response.ok) throw new Error('Failed to sync skills');
+    return await response.json();
+  };
+
+  const handleUpdate = async () => {
+    const updatedSkills = Object.values(editingSkills);
+
+    try {
+      await syncSkillsWithEndorsement(authData?.user._id, updatedSkills);
+
+      const updatedMap = new Map(
+        updatedSkills.map((s) => [s.name.toLowerCase(), s])
+      );
+
+      const newSkills = skills.map((s) =>
+        updatedMap.has(s.name.toLowerCase()) ? updatedMap.get(s.name.toLowerCase())! : s
+      );
+
+      setSkills(newSkills);
+      setEditingSkills({});
+      setHasEdits(false);
+    } catch (err) {
+      console.error('Error syncing skills:', err);
+    }
+  };
 
   const filtered = skills.filter((skill) =>
     skill.name.toLowerCase().includes(query.toLowerCase())
@@ -79,33 +157,105 @@ export default function SkillsPage() {
         onChange={(e) => setQuery(e.target.value)}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((skill, index) => (
-          <div
-            key={index}
-            className="rounded-2xl p-4 shadow-sm hover:shadow-md
-              bg-white dark:bg-zinc-900
-              border border-gray-200 dark:border-zinc-800
-              hover:bg-zinc-50 dark:hover:bg-zinc-800
-              transition"
+      {hasEdits && (
+        <div className="mb-4 flex justify-end gap-4">
+          <button
+            onClick={handleCancelChanges}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center gap-2"
           >
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-              {skill.name.toUpperCase()}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Experience: {skill.yearsOfExperience} yrs
-            </p>
-            {skill.certification && (
-              <p className="text-xs mt-1 italic text-blue-600 dark:text-blue-400">
-                Certified
-              </p>
-            )}
-          </div>
-        ))}
+            <Undo2Icon className="w-4 h-4" />
+            Cancel Changes
+          </button>
+          <button
+            onClick={handleUpdate}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+          >
+            <CheckIcon className="w-4 h-4" />
+            Save Changes
+          </button>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((skill) => {
+          const key = getSkillKey(skill);
+          const isEditing = !!editingSkills[key];
+          const skillData = isEditing ? editingSkills[key] : skill;
+
+          return (
+            <div
+              key={key}
+              className="rounded-2xl p-4 shadow-md hover:shadow-lg
+                bg-white dark:bg-zinc-900
+                border border-gray-200 dark:border-zinc-800
+                hover:bg-zinc-50 dark:hover:bg-zinc-800
+                transition relative"
+            >
+              {!isEditing && (
+                <button
+                  onClick={() => handleEdit(skill)}
+                  className="absolute top-3 right-3 text-gray-500 hover:text-blue-500"
+                >
+                  <PencilIcon className="w-4 h-4" />
+                </button>
+              )}
+
+              {isEditing ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={skillData.name}
+                    onChange={(e) =>
+                      handleChange(key, 'name', e.target.value)
+                    }
+                    className="w-full px-3 py-1 rounded-md text-sm border dark:bg-zinc-800 dark:text-white"
+                  />
+                  <input
+                    type="number"
+                    value={skillData.yearsOfExperience}
+                    onChange={(e) =>
+                      handleChange(key, 'yearsOfExperience', e.target.value)
+                    }
+                    className="w-full px-3 py-1 rounded-md text-sm border dark:bg-zinc-800 dark:text-white"
+                    min={0}
+                  />
+                  <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={!!skillData.certification}
+                      onChange={(e) =>
+                        handleChange(key, 'certification', e.target.checked)
+                      }
+                    />
+                    Certified
+                  </label>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                    {skill.name.toUpperCase()}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Experience: {skill.yearsOfExperience} yrs
+                  </p>
+                  {skill.certification && (
+                    <p className="text-xs mt-1 italic text-blue-600 dark:text-blue-400">
+                      Certified
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Dialog with Dropzone to upload resume */}
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed z-10 inset-0 overflow-y-auto">
+      {/* Dropzone Dialog (unchanged) */}
+      <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="fixed z-10 inset-0 overflow-y-auto"
+      >
         <div className="flex items-center justify-center min-h-screen px-4">
           <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
           <div className="relative bg-white dark:bg-zinc-900 rounded-xl w-full max-w-xl p-6 z-20 border border-gray-200 dark:border-zinc-800">
@@ -117,8 +267,6 @@ export default function SkillsPage() {
                 <XIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
-
-            {/* Dropzone component here */}
             <DropzoneComponent />
           </div>
         </div>
