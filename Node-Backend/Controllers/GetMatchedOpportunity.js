@@ -1,26 +1,32 @@
-const Opportunity = require('../models/Opportunity');
 const UserSkillSet = require('../models/UserSkillSet');
 const axios = require('axios');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-const getMatchedOpportunityf = async (req, res) => {
+const getMatchedOpportunityFromSingleEntry = async (req, res) => {
     try {
-        // Fetch opportunities (only required fields)
-        const opportunitiesData = await Opportunity.find({}, {
-            name: 1,
-            keySkills: 1,
-            postingDate: 1
-        });
+        const opportunity = req.body;
 
-        // Fetch user skill sets (only required fields)
+        // Validate required fields
+        const { name, keySkills, postingDate } = opportunity;
+        if (!name || !Array.isArray(keySkills) || !postingDate) {
+            return res.status(400).json({ message: 'Missing or invalid opportunity fields' });
+        }
+
+        // Format the posting date
+        const formattedPostingDate = new Date(postingDate);
+        if (isNaN(formattedPostingDate.getTime())) {
+            return res.status(400).json({ message: 'Invalid postingDate format' });
+        }
+
+        // Fetch all user skill sets
         const userSkillSets = await UserSkillSet.find({}, {
             userId: 1,
             skills: 1
         });
 
-        // Transform consultants
+        // Format consultants
         const consultants = userSkillSets.map(user => ({
             userId: user.userId.toString(),
             skills: user.skills.map(skill => ({
@@ -30,28 +36,28 @@ const getMatchedOpportunityf = async (req, res) => {
             }))
         }));
 
-        // Transform opportunities
-        const opportunities = opportunitiesData.map(op => ({
-            text: `Opportunity: ${op.name}. Required Skills: ${op.keySkills.join(', ')}`,
-            date: new Date(op.postingDate).toISOString().split('T')[0] // format to YYYY-MM-DD
-        }));
+        // Format single opportunity
+        const opportunities = [{
+            text: `Opportunity: ${name}. Required Skills: ${keySkills.join(', ')}`,
+            date: formattedPostingDate.toISOString().split('T')[0]
+        }];
 
-        // Final payload to send to Flask
+        // Build payload
         const payload = {
             consultants,
             opportunities
         };
 
-        // Call Python Flask API
-        const flaskResponse = await axios.post(process.env.flaskserver+'api/opportunity/handle', payload);
+        // Send to Flask for matching
+        const flaskResponse = await axios.post(`${process.env.flaskserver}api/opportunity/handle`, payload);
 
-        // Return response from Flask
+        // Return matched consultants from Flask
         res.status(200).json(flaskResponse.data);
 
     } catch (error) {
-        console.error('Error matching opportunities:', error);
+        console.error('Error matching opportunity:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
-module.exports = getMatchedOpportunityf;
+module.exports = getMatchedOpportunityFromSingleEntry;
