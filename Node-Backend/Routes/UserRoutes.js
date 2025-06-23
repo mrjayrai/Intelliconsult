@@ -5,6 +5,7 @@ const { loginUser } = require('../controllers/UserLogin');
 const { addResume } = require('../controllers/AddResume');
 const { getTotalTrainingHoursForUser } = require('../controllers/GetTrainingHours');
 const { getMonthlyTrainingHoursForUser } = require('../controllers/GetMonthlyhours');
+const { getAllConsultantsBasicInfo } = require('../controllers/GetConsultantDetails');
 const upload = require('../middleware/uploads');
 
 
@@ -13,5 +14,6 @@ router.post('/login', loginUser);
 router.post('/add-resume', upload.single('file'), addResume);
 router.post('/get-training-hours',getTotalTrainingHoursForUser);
 router.post('/get-monthly-training-hours',getMonthlyTrainingHoursForUser);
+router.post('/get-consultant',getAllConsultantsBasicInfo);
 
 module.exports = router;
