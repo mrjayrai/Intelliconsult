@@ -1,10 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 import Image from 'next/image';
-import api from '@/apiLink';
 
 interface TrainingData {
   _id: string;
@@ -32,55 +29,67 @@ interface CompletedTraining {
 
 const CARDS_PER_PAGE = 3;
 
-export default function TrainingPage() {
-  const { authData } = useAuth();
-  const userId = authData?.user?._id;
+// Static dummy data
+const staticAssignedTrainings: AssignedTraining[] = [
+  {
+    _id: '1',
+    assignedDate: '2025-06-01',
+    trainingId: {
+      _id: '101',
+      name: 'React Basics',
+      startDate: '2025-06-01',
+      endDate: '2025-06-10',
+      trainerName: 'John Doe',
+      skillsToBeAcquired: ['React', 'JSX', 'Hooks']
+    }
+  },
+  {
+    _id: '2',
+    assignedDate: '2025-06-05',
+    trainingId: {
+      _id: '102',
+      name: 'Next.js Fundamentals',
+      startDate: '2025-06-10',
+      endDate: '2025-06-20',
+      trainerName: 'Jane Smith',
+      skillsToBeAcquired: ['Routing', 'SSR', 'API Routes']
+    }
+  },
+  {
+    _id: '3',
+    assignedDate: '2025-06-10',
+    trainingId: {
+      _id: '103',
+      name: 'Tailwind CSS',
+      startDate: '2025-06-15',
+      endDate: '2025-06-25',
+      trainerName: 'Michael Lee',
+      skillsToBeAcquired: ['Utility classes', 'Responsive design']
+    }
+  }
+];
 
-  const [assignedTrainings, setAssignedTrainings] = useState<AssignedTraining[]>([]);
-  const [completedTrainings, setCompletedTrainings] = useState<CompletedTraining[]>([]);
-  const [loadingAssigned, setLoadingAssigned] = useState(true);
-  const [loadingCompleted, setLoadingCompleted] = useState(true);
+const staticCompletedTrainings: CompletedTraining[] = [
+  {
+    _id: '201',
+    completedDate: '2025-05-30',
+    score: 90,
+    feedback: 'Great content, learned a lot!',
+    certificateUrl: 'https://example.com/certificate-201.pdf',
+    trainingId: {
+      _id: '301',
+      name: 'JavaScript Mastery',
+      startDate: '2025-05-01',
+      endDate: '2025-05-20',
+      trainerName: 'Alice Brown',
+      skillsToBeAcquired: ['ES6+', 'Async/Await', 'DOM Manipulation']
+    }
+  }
+];
+
+export default function TrainingPage() {
   const [assignedPage, setAssignedPage] = useState(1);
   const [completedPage, setCompletedPage] = useState(1);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchAssignedTrainings = async () => {
-      try {
-        const response = await fetch(api + 'trainings/assigned', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-        const result = await response.json();
-        setAssignedTrainings(result.data.trainings);
-      } catch (error) {
-        console.error('Error fetching assigned trainings:', error);
-      } finally {
-        setLoadingAssigned(false);
-      }
-    };
-
-    const fetchCompletedTrainings = async () => {
-      try {
-        const response = await fetch(api + 'trainings/get-completed-training', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-        const result = await response.json();
-        setCompletedTrainings(result.data.trainingsCompleted);
-      } catch (error) {
-        console.error('Error fetching completed trainings:', error);
-      } finally {
-        setLoadingCompleted(false);
-      }
-    };
-
-    fetchAssignedTrainings();
-    fetchCompletedTrainings();
-  }, [userId]);
 
   const paginate = <T,>(data: T[], page: number) =>
     data.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE);
@@ -112,31 +121,21 @@ export default function TrainingPage() {
     );
   };
 
-  if (!userId) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        Please log in to view your training dashboard.
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-6">
       <h1 className="text-3xl font-bold mb-10 text-center">My Trainings</h1>
 
-      {/* Assigned Trainings Section */}
+      {/* Assigned Trainings */}
       <section className="mb-16">
         <h2 className="text-2xl font-semibold mb-6 text-blue-700 dark:text-blue-400">
           Assigned Trainings
         </h2>
-        {loadingAssigned ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
-        ) : assignedTrainings.length === 0 ? (
+        {staticAssignedTrainings.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">No assigned trainings found.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginate(assignedTrainings, assignedPage).map((training) => (
+              {paginate(staticAssignedTrainings, assignedPage).map((training) => (
                 <div
                   key={training._id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg overflow-hidden"
@@ -169,24 +168,22 @@ export default function TrainingPage() {
                 </div>
               ))}
             </div>
-            {renderPagination(assignedTrainings.length, assignedPage, setAssignedPage)}
+            {renderPagination(staticAssignedTrainings.length, assignedPage, setAssignedPage)}
           </>
         )}
       </section>
 
-      {/* Completed Trainings Section */}
+      {/* Completed Trainings */}
       <section>
         <h2 className="text-2xl font-semibold mb-6 text-green-700 dark:text-green-400">
           Completed Trainings
         </h2>
-        {loadingCompleted ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
-        ) : completedTrainings.length === 0 ? (
+        {staticCompletedTrainings.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">You haven’t completed any trainings yet.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginate(completedTrainings, completedPage).map((training) => (
+              {paginate(staticCompletedTrainings, completedPage).map((training) => (
                 <div
                   key={training._id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg overflow-hidden"
@@ -215,18 +212,19 @@ export default function TrainingPage() {
                     <p className="text-sm italic text-gray-500 dark:text-gray-300">
                       {training.feedback}
                     </p>
-                    <Link
+                    <a
                       href={training.certificateUrl}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="block mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       View Certificate
-                    </Link>
+                    </a>
                   </div>
                 </div>
               ))}
             </div>
-            {renderPagination(completedTrainings.length, completedPage, setCompletedPage)}
+            {renderPagination(staticCompletedTrainings.length, completedPage, setCompletedPage)}
           </>
         )}
       </section>

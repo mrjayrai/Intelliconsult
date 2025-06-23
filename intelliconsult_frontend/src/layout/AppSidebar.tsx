@@ -65,9 +65,9 @@ const managerNavItems: NavItem[] = [
     icon: <ListIcon />,
     name: "Manage",
     subItems: [
-      { name: "Consultants", path: "/manager/consultants" },
-      { name: "Trainings", path: "/manager/trainings" },
-      { name: "Opportunities", path: "/manager/opportunities" },
+      { name: "Traning", path: "/manager/training" },
+      // { name: "Trainings", path: "/manager/trainings" },
+      { name: "Opportunities", path: "/manager/opportunity" },
     ],
   },
   {
