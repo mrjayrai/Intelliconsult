@@ -11,6 +11,7 @@ const studentTrainingCompletionSchema = require('./models/TrainingCompleted');
 const TrainingAssignment = require('./models/AssignedTraining');
 const UserResumeTracker = require('./models/UserResumeTracker');
 const InviteOpportunityScehma = require('./models/InviteOpportunity');
+const AcceptedOpportunitySchema = require('./models/AcceptOpportunity');
 const userRoutes = require('./routes/UserRoutes');
 const skillRoutes = require('./routes/SkillsRoutes');
 const AttendanceRoutes = require('./routes/AttendanceRoutes');
