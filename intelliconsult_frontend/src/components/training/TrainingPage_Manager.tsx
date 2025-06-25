@@ -29,6 +29,7 @@ export default function TrainingPage_Manager() {
   const [selectedTrainingId, setSelectedTrainingId] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState('');
   const [loadingAssign, setLoadingAssign] = useState(false);
+  const [markCompleted, setMarkCompleted] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -42,7 +43,6 @@ export default function TrainingPage_Manager() {
     skillsToBeAcquired: ''
   });
 
-  // Fetch training list
   const fetchTrainings = async () => {
     try {
       const res = await fetch('http://localhost:4000/api/trainings/get-training', {
@@ -56,7 +56,6 @@ export default function TrainingPage_Manager() {
     }
   };
 
-  // Fetch consultant list
   const fetchConsultants = async () => {
     try {
       const res = await fetch('http://localhost:4000/api/users/get-consultant', {
@@ -70,7 +69,6 @@ export default function TrainingPage_Manager() {
     }
   };
 
-  // Assign training to consultant
   const assignTrainingToConsultant = async () => {
     if (!selectedTrainingId || !selectedConsultant) return;
 
@@ -78,7 +76,8 @@ export default function TrainingPage_Manager() {
     const payload = {
       userId: selectedConsultant,
       trainingId: selectedTrainingId,
-      assignedDate
+      assignedDate,
+      isCompleted: markCompleted
     };
 
     setLoadingAssign(true);
@@ -89,23 +88,19 @@ export default function TrainingPage_Manager() {
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
       if (res.ok) {
-        // alert('Training assigned successfully!');
         setShowAssignModal(false);
         setSelectedConsultant('');
         setSelectedTrainingId('');
-      } else {
-        // alert('Failed to assign training.');
+        setMarkCompleted(false);
       }
     } catch (err) {
-      // alert('Something went wrong during assignment.');
+      console.error('Assignment failed:', err);
     } finally {
       setLoadingAssign(false);
     }
   };
 
-  // Create training
   const handleCreateTraining = async () => {
     const body = {
       name: formData.name,
@@ -135,9 +130,7 @@ export default function TrainingPage_Manager() {
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
       if (res.ok) {
-        // alert('Training created successfully!');
         setShowCreateModal(false);
         setFormData({
           name: '',
@@ -151,8 +144,6 @@ export default function TrainingPage_Manager() {
           skillsToBeAcquired: ''
         });
         fetchTrainings();
-      } else {
-        // alert(data.message || 'Error creating training');
       }
     } catch (err) {
       console.error('Error:', err);
@@ -170,37 +161,37 @@ export default function TrainingPage_Manager() {
   }, []);
 
   return (
-    <div className="pt-20 px-6 pb-6 min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
-      {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage Trainings</h1>
+    <div className="pt-20 px-6 pb-10 min-h-screen bg-gradient-to-b from-white via-gray-100 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-black dark:text-white">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-extrabold">Manage Trainings</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow transition duration-200"
         >
-          Create Training
+           Create Training
         </button>
       </div>
 
-      {/* Training Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {trainings.map((training) => (
           <div
             key={training._id}
-            className="aspect-square border border-gray-300 dark:border-gray-700 rounded-xl shadow-md p-4 bg-gray-100 dark:bg-gray-800 flex flex-col justify-between"
+            className="rounded-2xl border border-gray-300 dark:border-gray-700 p-6 shadow-xl bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
           >
             <div>
-              <h3 className="text-lg font-semibold text-center truncate">{training.name}</h3>
-              <p className="text-sm text-center mt-1 text-gray-600 dark:text-gray-300">Trainer: {training.trainerName}</p>
-              <p className="text-sm text-center text-gray-500 dark:text-gray-400">
-                {new Date(training.startDate).toLocaleDateString()} - {new Date(training.endDate).toLocaleDateString()}
+              <h3 className="text-xl font-bold text-center mb-2 truncate">{training.name}</h3>
+              <p className="text-sm text-center text-gray-500 dark:text-gray-300 mb-1">
+                <span className="font-medium">Trainer:</span> {training.trainerName}
+              </p>
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                {new Date(training.startDate).toLocaleDateString()} → {new Date(training.endDate).toLocaleDateString()}
               </p>
             </div>
             <button
               onClick={() => openAssignModal(training._id)}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="mt-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition duration-200"
             >
-              Assign
+              Assign Consultant
             </button>
           </div>
         ))}
@@ -208,16 +199,26 @@ export default function TrainingPage_Manager() {
 
       {/* Assign Modal */}
       {showAssignModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md text-black dark:text-white">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md text-black dark:text-white shadow-xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Assign Consultant</h2>
-              <button onClick={() => setShowAssignModal(false)} className="text-xl font-bold">&times;</button>
+              <h2 className="text-2xl font-bold">Assign Consultant</h2>
+              <button
+                onClick={() => {
+                  setShowAssignModal(false);
+                  setSelectedConsultant('');
+                  setSelectedTrainingId('');
+                  setMarkCompleted(false);
+                }}
+                className="text-2xl font-bold hover:text-red-500"
+              >
+                &times;
+              </button>
             </div>
 
             <label className="block mb-2 font-medium">Select Consultant:</label>
             <select
-              className="w-full p-2 rounded border dark:bg-gray-700"
+              className="w-full p-2 rounded border dark:bg-gray-700 focus:outline-none"
               value={selectedConsultant}
               onChange={(e) => setSelectedConsultant(e.target.value)}
             >
@@ -229,10 +230,23 @@ export default function TrainingPage_Manager() {
               ))}
             </select>
 
+            <div className="flex items-center mt-4">
+              <input
+                type="checkbox"
+                id="completed"
+                checked={markCompleted}
+                onChange={(e) => setMarkCompleted(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="completed" className="text-sm font-medium">
+                Mark as Completed
+              </label>
+            </div>
+
             <button
               onClick={assignTrainingToConsultant}
               disabled={!selectedConsultant || loadingAssign}
-              className="mt-6 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
+              className="mt-6 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50"
             >
               {loadingAssign ? 'Assigning...' : 'Assign Training'}
             </button>
@@ -241,97 +255,151 @@ export default function TrainingPage_Manager() {
       )}
 
       {/* Create Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 rounded-xl shadow-2xl w-full max-w-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Create Training</h2>
-              <button onClick={() => setShowCreateModal(false)} className="text-2xl font-bold hover:text-red-500">&times;</button>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Training Name"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Trainer Name"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.trainerName}
-                onChange={(e) => setFormData({ ...formData, trainerName: e.target.value })}
-              />
+{showCreateModal && (
+  <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center overflow-y-auto">
+    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-8 rounded-xl shadow-xl w-full max-w-5xl mx-4 my-10">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold">Create Training</h2>
+        <button
+          onClick={() => setShowCreateModal(false)}
+          className="text-3xl font-bold hover:text-red-500"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Side */}
+        <div className="space-y-5">
+          <div>
+            <label className="block mb-1 font-medium">Training Name</label>
+            <input
+              type="text"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Trainer Name</label>
+            <input
+              type="text"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.trainerName}
+              onChange={(e) => setFormData({ ...formData, trainerName: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-1 font-medium">Start Date</label>
               <input
                 type="date"
                 min={todayDate}
-                className="p-2 border rounded bg-white dark:bg-gray-700"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700"
                 value={formData.startDate}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
               />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">End Date</label>
               <input
                 type="date"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700"
                 value={formData.endDate}
                 onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">No. of Seats</label>
+            <input
+              type="number"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.noOfSeats}
+              onChange={(e) => setFormData({ ...formData, noOfSeats: Number(e.target.value) })}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Skills to be Acquired</label>
+            <input
+              type="text"
+              placeholder="Comma-separated"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.skillsToBeAcquired}
+              onChange={(e) => setFormData({ ...formData, skillsToBeAcquired: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Right Side */}
+        <div className="space-y-5">
+          <div>
+            <label className="block mb-1 font-medium">Years of Experience</label>
+            <input
+              type="number"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.eligibilityCriteria.yearsOfExperience}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  eligibilityCriteria: {
+                    ...formData.eligibilityCriteria,
+                    yearsOfExperience: Number(e.target.value)
+                  }
+                })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Must Have Skills</label>
+            <input
+              type="text"
+              placeholder="Comma-separated"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.eligibilityCriteria.mustHaveSkills}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  eligibilityCriteria: {
+                    ...formData.eligibilityCriteria,
+                    mustHaveSkills: e.target.value
+                  }
+                })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Good to Know Skills</label>
+            <input
+              type="text"
+              placeholder="Comma-separated"
+              className="w-full p-2 rounded border bg-white dark:bg-gray-700"
+              value={formData.prerequisites.goodToKnowSkills}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  prerequisites: {
+                    ...formData.prerequisites,
+                    goodToKnowSkills: e.target.value
+                  }
+                })
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-1 font-medium">Min Attendance %</label>
               <input
                 type="number"
-                placeholder="No of Seats"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.noOfSeats}
-                onChange={(e) => setFormData({ ...formData, noOfSeats: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                placeholder="Years of Experience"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.eligibilityCriteria.yearsOfExperience}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    eligibilityCriteria: {
-                      ...formData.eligibilityCriteria,
-                      yearsOfExperience: Number(e.target.value)
-                    }
-                  })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Must Have Skills (comma separated)"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.eligibilityCriteria.mustHaveSkills}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    eligibilityCriteria: {
-                      ...formData.eligibilityCriteria,
-                      mustHaveSkills: e.target.value
-                    }
-                  })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Good To Know Skills (comma separated)"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
-                value={formData.prerequisites.goodToKnowSkills}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    prerequisites: {
-                      ...formData.prerequisites,
-                      goodToKnowSkills: e.target.value
-                    }
-                  })
-                }
-              />
-              <input
-                type="number"
-                placeholder="Min Attendance %"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700"
                 value={formData.passingCriteria.minAttendancePercentage}
                 onChange={(e) =>
                   setFormData({
@@ -343,10 +411,13 @@ export default function TrainingPage_Manager() {
                   })
                 }
               />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Min Marks</label>
               <input
                 type="number"
-                placeholder="Min Marks"
-                className="p-2 border rounded bg-white dark:bg-gray-700"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700"
                 value={formData.passingCriteria.minMarks}
                 onChange={(e) =>
                   setFormData({
@@ -358,23 +429,22 @@ export default function TrainingPage_Manager() {
                   })
                 }
               />
-              <input
-                type="text"
-                placeholder="Skills To Be Acquired (comma separated)"
-                className="p-2 border rounded bg-white dark:bg-gray-700 col-span-2"
-                value={formData.skillsToBeAcquired}
-                onChange={(e) => setFormData({ ...formData, skillsToBeAcquired: e.target.value })}
-              />
             </div>
-            <button
-              onClick={handleCreateTraining}
-              className="mt-6 w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            >
-              Submit
-            </button>
           </div>
         </div>
-      )}
+      </div>
+
+      <button
+        onClick={handleCreateTraining}
+        className="mt-8 w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+)}
+
+{/* Create Model End */}
     </div>
   );
 }
