@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import api from "@/apiLink";
 
 interface Opportunity {
   _id: string;
@@ -29,7 +30,7 @@ export default function OpportunityPage_Manager() {
   // Fetch existing opportunities for manager
   const fetchOpportunities = async () => {
     try {
-      const res = await fetch('http://localhost:4000/api/opportunities/get-manager-opportunity', {
+      const res = await fetch(api+'opportunities/get-manager-opportunity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ managerId })
@@ -65,7 +66,7 @@ export default function OpportunityPage_Manager() {
     };
 
     try {
-      const res = await fetch('http://localhost:4000/api/opportunities/add-opportunity', {
+      const res = await fetch(api + 'opportunities/add-opportunity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
