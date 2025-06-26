@@ -13,7 +13,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false })
 
 export default function MonthlyTarget() {
   const { authData } = useAuth();
-  const monthlyTarget = 150;
+  const monthlyTarget = 1000;
 
   const [monthlyHours, setMonthlyHours] = useState<number[]>([]);
   const [currentMonthPercent, setCurrentMonthPercent] = useState(0);
@@ -27,7 +27,7 @@ export default function MonthlyTarget() {
       try {
         const userId = authData?.user._id;
 
-        const res = await fetch(api + "users/get-monthly-training-hours", {
+        const res = await fetch(api + "users/get-monthly-hours", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId }),
