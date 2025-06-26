@@ -18,18 +18,19 @@ Intelliconsultant/
 │   ├── index.js
 │   ├── package.json
 │   └── .env
-└── Python-backend/       # 🤖 Python + Flask + ML backend
-    ├── src/
-    │   ├── controllers/  # 🧠 AI/ML logic (resume, attendance, training)
-    │   ├── routes/       # 🛣️ Flask routes
-    │   ├── templates/    # 🖼️ HTML templates
-    │   ├── main.py
-    │   └── run.py
-    ├── data/
-    ├── models/
-    ├── uploads/
-    ├── requirements.txt
-    └── .env
+├── Python-backend/       # 🤖 Python + Flask + ML backend
+│   ├── src/
+│   │   ├── controllers/  # 🧠 AI/ML logic (resume, attendance, training)
+│   │   ├── routes/       # 🛣️ Flask routes
+│   │   ├── templates/    # 🖼️ HTML templates
+│   │   ├── main.py
+│   │   └── run.py
+│   ├── data/
+│   ├── models/
+│   ├── uploads/
+│   ├── requirements.txt
+│   └── .env
+└── [Frontend Directory]/  # 🖥️ React frontend (replace with actual folder name)
 ```
 
 ---
@@ -51,6 +52,17 @@ Intelliconsultant/
 - 📈 Attendance CSV analysis & AI summary
 - 🏆 Training effectiveness scoring using ML
 - 🔗 REST API endpoints
+
+### Frontend (React)
+- 🔐 Authentication (login/register)
+- 🏠 Dashboard for users and admins
+- 📄 Resume upload and parsed skill display
+- 🛠️ Skill management UI
+- 💼 Opportunity browsing and application
+- 🎓 Training progress and completion tracking
+- 📊 Attendance upload and summary view
+- 📝 Admin panel for management
+- 🌙 Responsive, modern design
 
 ---
 
@@ -91,6 +103,23 @@ python -m spacy download en_core_web_sm
   python run.py
   ```
 
+### 3️⃣ Frontend
+
+```sh
+cd [Frontend Directory]
+npm install
+```
+- Configure `.env`:
+  ```
+  REACT_APP_API_URL=http://localhost:4000/api/
+  REACT_APP_PY_API_URL=http://localhost:5000/api/
+  ```
+- Start frontend:
+  ```sh
+  npm start
+  ```
+  The app will run at [http://localhost:3000](http://localhost:3000) by default.
+
 ---
 
 ## 🔌 API Overview
@@ -121,6 +150,13 @@ python -m spacy download en_core_web_sm
 
 ---
 
+## 🛠️ Tech Stack
+
+- **Backend:** Node.js, Express, MongoDB, Python, Flask, spaCy, transformers
+- **Frontend:** React, Axios, React Router, CSS3/SCSS/Styled Components, Bootstrap/Material UI (if used)
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repo
@@ -143,7 +179,6 @@ This project is for educational and demonstration purposes.
 - Vidushi Upadhyay
 - Anand Salokiya
 
-
 _Node.js backend author field:_
 ```json
 "author": "Rai Pritesh, Daksh Yadav , Anand Salokiya, Vidushi Upadhyay",
@@ -158,3 +193,7 @@ _Node.js backend author field:_
 - [spaCy](https://spacy.io/)
 - [transformers](https://huggingface.co/transformers/)
 - [MongoDB](https://www.mongodb.com/)
+- [React](https://react.dev/)
+- [Axios](https://axios-http.com/)
+- [React Router](https://reactrouter.com/)
+- [Bootstrap](https://getbootstrap.com/) / [Material UI](https://mui.com/)
