@@ -1,102 +1,126 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/apiLink';
+import { useAuth } from '@/context/AuthContext';
+
+interface RawOpportunity {
+  _id: string;
+  name: string;
+  keySkills: string[];
+  yearsOfExperience: number;
+  postingDate: string;
+  lastDateToApply: string;
+  hiringManagerName: string;
+}
 
 interface Opportunity {
-  id: number;
+  id: string;
   title: string;
   description: string;
   sentBy: string;
   accepted: boolean;
 }
 
-const dummyOpportunities: Opportunity[] = [
-  {
-    id: 1,
-    title: 'React Developer Position',
-    description: 'A role focused on frontend development using React.',
-    sentBy: 'Manager John',
-    accepted: false,
-  },
-  {
-    id: 2,
-    title: 'Backend Engineer',
-    description: 'Looking for an expert in Node.js and databases.',
-    sentBy: 'Manager Sarah',
-    accepted: false,
-  },
-  {
-    id: 3,
-    title: 'DevOps Role',
-    description: 'Infrastructure automation and CI/CD pipelines.',
-    sentBy: 'Manager Lee',
-    accepted: false,
-  },
-  {
-    id: 4,
-    title: 'QA Engineer',
-    description: 'Manual and automation testing responsibilities.',
-    sentBy: 'Manager Amy',
-    accepted: false,
-  },
-  {
-    id: 5,
-    title: 'Product Manager',
-    description: 'Responsible for product planning and strategy.',
-    sentBy: 'Manager Max',
-    accepted: false,
-  },
-  {
-    id: 6,
-    title: 'Fullstack Developer',
-    description: 'Working with both frontend and backend systems.',
-    sentBy: 'Manager Nina',
-    accepted: false,
-  },
-];
-
 const CARDS_PER_PAGE = 3;
 
 export default function OpportunityPage() {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>(dummyOpportunities);
+  const { authData } = useAuth();
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const acceptOpportunity = (id: number) => {
-    setOpportunities((prev) =>
-      prev.map((opp) => (opp.id === id ? { ...opp, accepted: true } : opp))
-    );
+  const fetchOpportunities = async () => {
+    if (!authData?.user?._id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(api + 'opportunities/fetch-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: authData.user._id }),
+      });
+
+      const data = await res.json();
+
+      const mapped: Opportunity[] = data.opportunities.map((item: RawOpportunity) => ({
+        id: item._id,
+        title: item.name,
+        description: `Skills: ${item.keySkills.join(', ')} | Experience: ${item.yearsOfExperience} years`,
+        sentBy: item.hiringManagerName,
+        accepted: false,
+      }));
+
+      setOpportunities(mapped);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load opportunities.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const invitedOpportunities = opportunities.filter((opp) => !opp.accepted);
-  const acceptedOpportunities = opportunities.filter((opp) => opp.accepted);
+  useEffect(() => {
+    fetchOpportunities();
+  }, [authData]);
 
-  const totalPages = Math.ceil(invitedOpportunities.length / CARDS_PER_PAGE);
+  const acceptOpportunity = async (id: string) => {
+    try {
+      const res = await fetch(api + 'opportunities/accept-opportunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: authData?.user?._id, opportunityId: id }),
+      });
 
-  const paginatedData = invitedOpportunities.slice(
-    (page - 1) * CARDS_PER_PAGE,
-    page * CARDS_PER_PAGE
-  );
+      const data = await res.json();
+
+      if (res.ok) {
+        // Move opportunity from invited to accepted in UI
+        setOpportunities((prev) =>
+          prev.map((opp) => (opp.id === id ? { ...opp, accepted: true } : opp))
+        );
+      } else {
+        console.error('Failed to accept:', data.message);
+      }
+    } catch (err) {
+      console.error('Error while accepting opportunity:', err);
+    }
+  };
+
+  const invited = opportunities.filter((opp) => !opp.accepted);
+  const accepted = opportunities.filter((opp) => opp.accepted);
+  const totalPages = Math.ceil(invited.length / CARDS_PER_PAGE);
+  const paginated = invited.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">
       <h1 className="text-3xl font-bold mb-8">Opportunities</h1>
 
       {/* Invited Opportunities */}
-      <div className="mb-14">
+      <section className="mb-14">
         <h2 className="text-2xl font-semibold mb-6">Invited Opportunities</h2>
-        {invitedOpportunities.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">No invitations at the moment.</p>
+        {loading ? (
+          <p className="text-gray-500">Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : paginated.length === 0 ? (
+          <p className="text-gray-500">No invitations at the moment.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedData.map((opp) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+              {paginated.map((opp) => (
                 <div
                   key={opp.id}
-                  className="p-5 rounded-xl shadow bg-gray-100 dark:bg-gray-800 transition hover:shadow-lg"
+                  className="flex flex-col justify-between h-full p-5 rounded-xl shadow bg-gray-100 dark:bg-gray-800 transition hover:shadow-lg"
                 >
-                  <h3 className="text-lg font-semibold mb-2">{opp.title}</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{opp.description}</p>
-                  <p className="text-sm mt-2 text-gray-500">Sent by: {opp.sentBy}</p>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">{opp.title}</h3>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{opp.description}</p>
+                    <p className="text-sm mt-2 text-gray-500">Sent by: {opp.sentBy}</p>
+                  </div>
                   <button
                     onClick={() => acceptOpportunity(opp.id)}
                     className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -107,38 +131,40 @@ export default function OpportunityPage() {
               ))}
             </div>
 
-            {/* Stylish Pagination */}
-            <div className="flex justify-center mt-8 space-x-2">
-              {[...Array(totalPages)].map((_, index) => {
-                const pg = index + 1;
-                const isActive = page === pg;
-                return (
-                  <button
-                    key={pg}
-                    onClick={() => setPage(pg)}
-                    className={`px-4 py-2 rounded-full border transition ${
-                      isActive
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white border-gray-400 dark:border-gray-600 hover:bg-gray-300 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    {pg}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 space-x-2">
+                {Array.from({ length: totalPages }, (_, i) => {
+                  const pg = i + 1;
+                  const active = pg === page;
+                  return (
+                    <button
+                      key={pg}
+                      onClick={() => setPage(pg)}
+                      className={`px-4 py-2 rounded-full border transition ${
+                        active
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white border-gray-400 dark:border-gray-600 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {pg}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
-      </div>
+      </section>
 
       {/* Accepted Opportunities */}
-      <div>
+      <section>
         <h2 className="text-2xl font-semibold mb-6">Accepted Opportunities</h2>
-        {acceptedOpportunities.length === 0 ? (
+        {accepted.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400">No accepted opportunities yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {acceptedOpportunities.map((opp) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            {accepted.map((opp) => (
               <div
                 key={opp.id}
                 className="p-5 rounded-xl shadow bg-green-100 dark:bg-green-800 transition hover:shadow-lg"
@@ -150,7 +176,7 @@ export default function OpportunityPage() {
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
