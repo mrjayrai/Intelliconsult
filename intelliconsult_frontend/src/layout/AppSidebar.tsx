@@ -57,16 +57,11 @@ const managerNavItems: NavItem[] = [
     path: "/manager/dashboard",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Team Calendar",
-    path: "/manager/calendar",
-  },
-  {
     icon: <ListIcon />,
     name: "Manage",
     subItems: [
       { name: "Traning", path: "/manager/training" },
-      // { name: "Trainings", path: "/manager/trainings" },
+      { name: "Attendance Summary", path: "/manager/attendance" },
       { name: "Opportunities", path: "/manager/opportunity" },
     ],
   },
