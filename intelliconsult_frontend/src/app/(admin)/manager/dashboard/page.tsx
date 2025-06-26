@@ -4,7 +4,7 @@ import React from "react";
 import MonthlyTarget from "@/components/ecommerce/MMonthlyTarget";
 import MonthlySalesChart from "@/components/ecommerce/MMonthlysalesChart";
 // import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import RecentOrders from "@/components/ecommerce/MRecentOrders";
+// import RecentOrders from "@/components/ecommerce/MRecentOrders";
 // import DemographicCard from "@/components/ecommerce/DemographicCard";
 
 export const metadata: Metadata = {
@@ -34,9 +34,9 @@ export default function Ecommerce() {
         <DemographicCard />
       </div> */}
 
-      <div className="col-span-12 ">
+      {/* <div className="col-span-12 ">
         <RecentOrders />
-      </div>
+      </div> */}
     </div>
   );
 }
