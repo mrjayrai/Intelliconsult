@@ -98,7 +98,7 @@ useEffect(() => {
       100
     )}%`}
           </Badge> */}
-          <Badge color={(trainingData?.trainings.length ?? 0) >= 5 ? "success" : "error"}>
+          {/* <Badge color={(trainingData?.trainings.length ?? 0) >= 5 ? "success" : "error"}>
   {(trainingData?.trainings.length ?? 0) >= 5 ? (
     <>
       <ArrowUpIcon className="text-success-500" />
@@ -120,7 +120,7 @@ useEffect(() => {
       )}%`}
     </>
   )}
-</Badge>
+</Badge> */}
 
         </div>
       </div>

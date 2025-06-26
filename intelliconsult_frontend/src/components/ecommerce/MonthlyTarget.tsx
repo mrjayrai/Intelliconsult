@@ -47,7 +47,7 @@ export default function MonthlyTarget() {
 
     const fetchTodayHours = async () => {
       try {
-        const res = await fetch(api + "users/get-today-training-hours", {
+        const res = await fetch(api + "users/get-training-hours", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: authData?.user._id }),
