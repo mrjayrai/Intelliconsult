@@ -7,6 +7,7 @@ const { getOpportunitiesByManagerId } = require('../controllers/GetOpportunity')
 const { InviteOpportunity } = require('../controllers/SendOpportunity');
 const { getUserOpportunities } = require('../controllers/FetchInvite');
 const { acceptOpportunityInvite } = require('../controllers/AcceptOpportunity');
+const { getAcceptedOpportunities } = require('../controllers/GetAcceptedOpportunity');
 
 router.post('/add-opportunity', addOpportunity);
 router.post('/get-matched-opportunity', getMatchedOpportunityFromSingleEntry);
@@ -14,5 +15,6 @@ router.post('/get-manager-opportunity',getOpportunitiesByManagerId);
 router.post('/send-invite',InviteOpportunity);
 router.post('/fetch-invite', getUserOpportunities);
 router.post('/accept-opportunity', acceptOpportunityInvite);
+router.post('/fetch-accept-opportunity',getAcceptedOpportunities);
 
 module.exports = router;

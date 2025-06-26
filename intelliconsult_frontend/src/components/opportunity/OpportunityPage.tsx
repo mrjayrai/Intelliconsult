@@ -19,42 +19,51 @@ interface Opportunity {
   title: string;
   description: string;
   sentBy: string;
-  accepted: boolean;
 }
 
 const CARDS_PER_PAGE = 3;
 
 export default function OpportunityPage() {
   const { authData } = useAuth();
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+
+  const [invited, setInvited] = useState<Opportunity[]>([]);
+  const [accepted, setAccepted] = useState<Opportunity[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOpportunities = async () => {
+  const mapOpportunity = (item: RawOpportunity): Opportunity => ({
+    id: item._id,
+    title: item.name,
+    description: `Skills: ${item.keySkills.join(', ')} | Experience: ${item.yearsOfExperience} years`,
+    sentBy: item.hiringManagerName,
+  });
+
+  const fetchData = async () => {
     if (!authData?.user?._id) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(api + 'opportunities/fetch-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: authData.user._id }),
-      });
+      const [invitedRes, acceptedRes] = await Promise.all([
+        fetch(api + 'opportunities/fetch-invite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: authData.user._id }),
+        }),
+        fetch(api + 'opportunities/fetch-accept-opportunity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: authData.user._id }),
+        }),
+      ]);
 
-      const data = await res.json();
+      const invitedData = await invitedRes.json();
+      const acceptedData = await acceptedRes.json();
 
-      const mapped: Opportunity[] = data.opportunities.map((item: RawOpportunity) => ({
-        id: item._id,
-        title: item.name,
-        description: `Skills: ${item.keySkills.join(', ')} | Experience: ${item.yearsOfExperience} years`,
-        sentBy: item.hiringManagerName,
-        accepted: false,
-      }));
-
-      setOpportunities(mapped);
+      setInvited(invitedData.opportunities.map(mapOpportunity));
+      setAccepted(acceptedData.opportunities.map(mapOpportunity));
     } catch (err) {
       console.error(err);
       setError('Failed to load opportunities.');
@@ -64,7 +73,7 @@ export default function OpportunityPage() {
   };
 
   useEffect(() => {
-    fetchOpportunities();
+    fetchData();
   }, [authData]);
 
   const acceptOpportunity = async (id: string) => {
@@ -78,10 +87,11 @@ export default function OpportunityPage() {
       const data = await res.json();
 
       if (res.ok) {
-        // Move opportunity from invited to accepted in UI
-        setOpportunities((prev) =>
-          prev.map((opp) => (opp.id === id ? { ...opp, accepted: true } : opp))
-        );
+        const acceptedOpp = invited.find((opp) => opp.id === id);
+        if (acceptedOpp) {
+          setInvited((prev) => prev.filter((opp) => opp.id !== id));
+          setAccepted((prev) => [...prev, acceptedOpp]);
+        }
       } else {
         console.error('Failed to accept:', data.message);
       }
@@ -90,8 +100,6 @@ export default function OpportunityPage() {
     }
   };
 
-  const invited = opportunities.filter((opp) => !opp.accepted);
-  const accepted = opportunities.filter((opp) => opp.accepted);
   const totalPages = Math.ceil(invited.length / CARDS_PER_PAGE);
   const paginated = invited.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE);
 
@@ -131,7 +139,6 @@ export default function OpportunityPage() {
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 space-x-2">
                 {Array.from({ length: totalPages }, (_, i) => {
