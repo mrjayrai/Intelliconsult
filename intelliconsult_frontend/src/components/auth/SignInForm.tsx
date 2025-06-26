@@ -38,7 +38,13 @@ export default function SignInForm() {
       // console.log("Login successful", data);
       setAuthData(data);
       localStorage.setItem("authToken", data.token);
+      const role = data?.user?.role;
+    if (role === "manager") {
+      router.push("/manager/dashboard");
+    } else {
       router.push("/dashboard");
+    }
+      // router.push("/dashboard");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
     }catch(err: any){
       setError("Invalid Credentails");
