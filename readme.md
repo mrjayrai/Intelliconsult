@@ -30,7 +30,7 @@ Intelliconsultant/
 │   ├── uploads/
 │   ├── requirements.txt
 │   └── .env
-└── [Frontend Directory]/  # 🖥️ React frontend (replace with actual folder name)
+└── [Intelliconsult_frontend]/  # 🖥️ NextJS frontend 
 ```
 
 ---
@@ -193,7 +193,8 @@ _Node.js backend author field:_
 - [spaCy](https://spacy.io/)
 - [transformers](https://huggingface.co/transformers/)
 - [MongoDB](https://www.mongodb.com/)
+- [Nextjs](https://nextjs.org/) 
 - [React](https://react.dev/)
 - [Axios](https://axios-http.com/)
 - [React Router](https://reactrouter.com/)
-- [Bootstrap](https://getbootstrap.com/) / [Material UI](https://mui.com/)
+- [Tailwind](https://tailwindcss.com/) 
