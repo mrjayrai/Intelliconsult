@@ -10,6 +10,7 @@ const { updateUserProfile } = require('../controllers/UpdateUserDetails');
 const { getConsultantCount } = require('../controllers/GetConsultantCount');
 const { getUsersWithTrainingCount } = require('../controllers/GetConsultantAssigned');
 const { getAllUsersMonthlyHours } = require('../controllers/MonthlyHoursConsolidated');
+const { getConsultantInsights } = require('../controllers/GetInsight');
 const upload = require('../middleware/uploads');
 
 
@@ -23,4 +24,5 @@ router.post('/update-user',updateUserProfile);
 router.post('/get-consultant-count',getConsultantCount);
 router.post('/get-consultant-enaged',getUsersWithTrainingCount);
 router.post('/get-monthly-hours',getAllUsersMonthlyHours);
+router.post('/get-insights',getConsultantInsights);
 module.exports = router;

@@ -1,12 +1,11 @@
 from flask import Blueprint, request, jsonify
-from controllers.attendance_controller import handle_attendance
+from controllers.attendance_controller import handle_attendance_json
 
 bp = Blueprint('attendance', __name__, url_prefix='/api/attendance')
 
-@bp.route('/upload', methods=['POST'])
+@bp.route('/analyze', methods=['POST'])
 def upload_attendance():
-    file = request.files.get('file')
-    if not file:
-        return jsonify({'error': 'No file uploaded'}), 400
-    result = handle_attendance(file)
+    data = request.get_json()
+    consultants = data.get("consultants", [])
+    result = handle_attendance_json(consultants)
     return jsonify(result)
