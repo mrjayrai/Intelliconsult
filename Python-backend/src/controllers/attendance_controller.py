@@ -4,7 +4,13 @@ import nltk
 import warnings
 import numpy as np
 
-nltk.data.path.append('/home/ubuntu/nltk_data')
+nltk.data.path.append("/home/ubuntu/nltk_data")  # Set correct path
+
+# 👇 Explicitly load NLTK's tokenizer so it doesn't fail
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 warnings.filterwarnings("ignore")
 
 def handle_attendance_json(consultant_data):
