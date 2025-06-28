@@ -4,14 +4,17 @@ import nltk
 import warnings
 import numpy as np
 
-nltk.data.path.append("/home/ubuntu/nltk_data")  # Set correct path
-
-# 👇 Explicitly load NLTK's tokenizer so it doesn't fail
+# Set NLTK data path and check for required tokenizer
+nltk.data.path.append("/home/ubuntu/nltk_data")
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
     nltk.download("punkt")
+
 warnings.filterwarnings("ignore")
+
+# Initialize summarization pipeline once
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def handle_attendance_json(consultant_data):
     try:
@@ -30,6 +33,7 @@ def handle_attendance_json(consultant_data):
             email = user.get("email", "N/A")
             city = user.get("city", "N/A")
             doj = user.get("doj", "N/A")
+
             resume_skills = set(map(str.lower, user.get("resumeDetails", {}).get("skills", [])))
             skills_obj = user.get("skills", [])
             attendance_sheet = user.get("attendanceSheet", [])
@@ -37,13 +41,11 @@ def handle_attendance_json(consultant_data):
             assigned_trainings = user.get("trainingsAssigned", [])
             projects = user.get("projects", [])
 
-            # Skill Analysis
             endorsed_skills = [s for s in skills_obj if s.get("endorsements", 0) > 0]
             certified_skills = [s for s in skills_obj if s.get("certification", "").lower() == "true"]
             skill_names = set(s.get("name", "").lower() for s in skills_obj)
             skill_match_pct = round(len(resume_skills & skill_names) / max(1, len(resume_skills)) * 100, 2)
 
-            # Attendance Analysis
             total_days = total_present = 0
             training_attendance_list = []
 
@@ -72,7 +74,6 @@ def handle_attendance_json(consultant_data):
 
             overall_attendance = round((total_present / total_days) * 100, 2) if total_days else 0.0
 
-            # Status Logic
             if overall_attendance >= 90 and len(certified_skills) >= 2 and len(projects) >= 2:
                 status = "Deployment Ready"
             elif overall_attendance >= 75:
@@ -98,7 +99,6 @@ def handle_attendance_json(consultant_data):
                 "trainings": training_attendance_list
             })
 
-        # Convert for summary generation
         df = pd.DataFrame(attendance_rows)
 
         summary_text = ""
@@ -112,24 +112,14 @@ def handle_attendance_json(consultant_data):
                 f"Remark: {insight['remark']}.\n"
             )
 
-        # Overall stats
         avg_attendance = round(df["Attendance %"].mean(), 2) if not df.empty else 0.0
         summary_text += f"\nOverall average attendance across all consultants: {avg_attendance}%."
 
-        # AI Summary
+        # Use HuggingFace summarizer (no fallback)
         try:
-            summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
             ai_summary = summarizer(summary_text[:1024], max_length=100, min_length=30, do_sample=False)[0]['summary_text']
-        except:
-            nltk.download('punkt')
-            from sumy.summarizers.lsa import LsaSummarizer
-            from sumy.parsers.plaintext import PlaintextParser
-            from sumy.nlp.tokenizers import Tokenizer
-
-            parser = PlaintextParser.from_string(summary_text, Tokenizer("english"))
-            summarizer_model = LsaSummarizer()
-            summary_sentences = summarizer_model(parser.document, 3)
-            ai_summary = ' '.join(str(sentence) for sentence in summary_sentences)
+        except Exception as e:
+            ai_summary = "Summary generation failed: " + str(e)
 
         return {
             "status": "success",
