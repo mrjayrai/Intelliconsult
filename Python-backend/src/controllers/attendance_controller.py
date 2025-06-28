@@ -4,6 +4,7 @@ import nltk
 import warnings
 import numpy as np
 
+nltk.data.path.append('/home/ubuntu/nltk_data')
 warnings.filterwarnings("ignore")
 
 def handle_attendance_json(consultant_data):
