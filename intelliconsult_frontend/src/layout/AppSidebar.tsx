@@ -61,7 +61,7 @@ const managerNavItems: NavItem[] = [
     name: "Manage",
     subItems: [
       { name: "Traning", path: "/manager/training" },
-      { name: "Attendance Summary", path: "/manager/attendance" },
+      { name: "Consultant Summary", path: "/manager/summary" },
       { name: "Opportunities", path: "/manager/opportunity" },
     ],
   },
