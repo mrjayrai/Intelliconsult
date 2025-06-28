@@ -1,12 +1,11 @@
+import React from "react";
+import ConsultantInsights from "@/components/insight/ConsultantInsights";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "IntelliConsult",
-  description: "This is intelliConsult Summary Page",
+  description: "This is intelliConsult Skill Page",
 };
-
-export default function Skill() {
-  return (
-    <>Hello</>
-  );
+export default function SummaryPage() {
+  return <ConsultantInsights />;
 }
