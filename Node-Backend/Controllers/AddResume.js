@@ -24,7 +24,7 @@ const addResume = async (req, res) => {
 
     // Post resume file to Flask server
     const flaskResponse = await axios.post(
-      process.env.flaskserver + 'api/resume/add',
+      process.env.flaskserver + '/api/resume/add',
       formData,
       {
         headers: formData.getHeaders(),
