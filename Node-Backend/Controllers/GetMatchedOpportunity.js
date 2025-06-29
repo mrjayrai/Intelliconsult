@@ -41,7 +41,7 @@ const getMatchedOpportunityFromSingleEntry = async (req, res) => {
     const payload = { consultants, opportunities };
 
     // 4. Call Flask ML service
-    const flaskResponse = await axios.post(`${process.env.flaskserver}api/opportunity/handle`, payload);
+    const flaskResponse = await axios.post(`${process.env.flaskserver}/api/opportunity/handle`, payload);
     const flaskData = flaskResponse.data;
 
     // 5. Filter consultants who matched at least one opportunity
