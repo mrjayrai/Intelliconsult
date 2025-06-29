@@ -45,6 +45,7 @@ const getMatchedOpportunityFromSingleEntry = async (req, res) => {
     const flaskData = flaskResponse.data;
 
     // 5. Filter consultants who matched at least one opportunity
+    console.log(flaskData);
     const matchedConsultants = flaskData.consultant_matches.filter(c => c.matched_opportunities.length > 0);
 
     // 6. Fetch user details for matched consultants
