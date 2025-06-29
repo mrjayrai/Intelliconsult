@@ -82,7 +82,7 @@ export default function MatchedConsultantsPage() {
     <div className="min-h-screen p-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <h1 className="text-4xl font-bold mb-4">Matched Consultants</h1>
       <p className="mb-8 text-lg text-gray-600 dark:text-gray-300">
-        Opportunity: <strong>{opportunityData?.text || 'Unknown Opportunity'}</strong>
+        {/* Opportunity: <strong>{opportunityData?.text || 'Unknown Opportunity'}</strong> */}
       </p>
 
       {matchedConsultants.length === 0 ? (
