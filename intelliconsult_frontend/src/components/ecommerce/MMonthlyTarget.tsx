@@ -37,9 +37,10 @@ export default function MonthlyTarget() {
         const hours: number[] = data.monthlyHours || Array(12).fill(0);
         const currentMonth = new Date().getMonth();
 
-        const percent = Math.min(((hours[currentMonth] / monthlyTarget) * 100).toFixed(2), 100);
+        const percent = Math.min(parseFloat(((hours[currentMonth] / monthlyTarget) * 100).toFixed(2)), 100);
+
         setMonthlyHours(hours);
-        setCurrentMonthPercent(parseFloat(percent));
+        setCurrentMonthPercent((percent));
       } catch (err) {
         console.error("Failed to fetch monthly hours", err);
       }

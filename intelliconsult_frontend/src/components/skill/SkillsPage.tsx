@@ -105,6 +105,13 @@ export default function SkillsPage() {
   };
 
   const handleUpdate = async () => {
+
+    const userId = authData?.user._id;
+    if (!userId) {
+      console.error("User ID is undefined");
+      return;
+    }
+    
     const updatedSkills = Object.values(editingSkills);
 
     try {
