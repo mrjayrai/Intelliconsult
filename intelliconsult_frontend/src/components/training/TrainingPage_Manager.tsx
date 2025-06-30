@@ -182,7 +182,7 @@ export default function TrainingPage_Manager() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert('Training created successfully!');
+        // alert('Training created successfully!');
         setShowCreateModal(false);
         setFormData({
           name: '',
